@@ -1,0 +1,298 @@
+-- ==========================================
+-- STEP 1: CREATE TABLES (WITHOUT CONSTRAINTS)
+-- ==========================================
+
+CREATE TABLE House (
+    HouseID INT,
+    HouseName VARCHAR(50)
+);
+
+CREATE TABLE Student (
+    StudentID INT,
+    Name VARCHAR(100),
+    Email VARCHAR(100),
+    Year INT,
+    HouseID INT
+);
+
+CREATE TABLE Referee (
+    RefereeID INT,
+    Name VARCHAR(100),
+    Email VARCHAR(100),
+    SportExpertise VARCHAR(50)
+);
+
+CREATE TABLE Event (
+    EventID INT,
+    EventName VARCHAR(100),
+    SportType VARCHAR(20),
+    EventDate DATE,
+    RefereeID INT
+);
+
+CREATE TABLE Team (
+    TeamID INT,
+    HouseID INT,
+    EventID INT
+);
+
+CREATE TABLE TeamMember (
+    TeamID INT,
+    StudentID INT,
+    Role VARCHAR(20)
+);
+
+CREATE TABLE MatchResult (
+    MatchID INT,
+    EventID INT,
+    WinningHouseID INT,
+    ScoreDetails VARCHAR(255)
+);
+
+-- ==========================================
+-- STEP 2: ADD CONSTRAINTS
+-- ==========================================
+
+-- PRIMARY KEYS
+ALTER TABLE House ADD PRIMARY KEY (HouseID);
+ALTER TABLE Student ADD PRIMARY KEY (StudentID);
+ALTER TABLE Referee ADD PRIMARY KEY (RefereeID);
+ALTER TABLE Event ADD PRIMARY KEY (EventID);
+ALTER TABLE Team ADD PRIMARY KEY (TeamID);
+ALTER TABLE TeamMember ADD PRIMARY KEY (TeamID, StudentID);
+ALTER TABLE MatchResult ADD PRIMARY KEY (MatchID);
+
+-- UNIQUE Constraints
+ALTER TABLE House ADD UNIQUE (HouseName);
+ALTER TABLE Student ADD UNIQUE (Email);
+ALTER TABLE Referee ADD UNIQUE (Email);
+
+-- FOREIGN KEYS
+ALTER TABLE Student ADD CONSTRAINT fk_Student_House FOREIGN KEY (HouseID) REFERENCES House(HouseID);
+ALTER TABLE Event ADD CONSTRAINT fk_Event_Referee FOREIGN KEY (RefereeID) REFERENCES Referee(RefereeID);
+ALTER TABLE Team ADD CONSTRAINT fk_Team_House FOREIGN KEY (HouseID) REFERENCES House(HouseID);
+ALTER TABLE Team ADD CONSTRAINT fk_Team_Event FOREIGN KEY (EventID) REFERENCES Event(EventID);
+ALTER TABLE TeamMember ADD CONSTRAINT fk_TeamMember_Team FOREIGN KEY (TeamID) REFERENCES Team(TeamID);
+ALTER TABLE TeamMember ADD CONSTRAINT fk_TeamMember_Student FOREIGN KEY (StudentID) REFERENCES Student(StudentID);
+ALTER TABLE MatchResult ADD CONSTRAINT fk_Match_Event FOREIGN KEY (EventID) REFERENCES Event(EventID);
+ALTER TABLE MatchResult ADD CONSTRAINT fk_Match_Winner FOREIGN KEY (WinningHouseID) REFERENCES House(HouseID);
+
+-- CHECK Constraints (MySQL 8+)
+ALTER TABLE Event ADD CONSTRAINT chk_SportType CHECK (SportType IN ('Team', 'Solo'));
+ALTER TABLE TeamMember ADD CONSTRAINT chk_Role CHECK (Role IN ('Captain', 'Player'));
+
+-- ==========================================
+-- STEP 3: INSERT VALUES
+-- ==========================================
+
+-- HOUSE
+INSERT INTO House VALUES (1, 'Red House'), (2, 'Blue House'), (3, 'Green House'), (4, 'Yellow House'),
+(5, 'Orange House'), (6, 'Purple House'), (7, 'White House'), (8, 'Black House'), (9, 'Grey House'), (10, 'Pink House');
+
+-- STUDENT
+INSERT INTO Student VALUES 
+(101, 'Alice', 'alice@uni.edu', 1, 1),
+(102, 'Bob', 'bob@uni.edu', 2, 2),
+(103, 'Charlie', 'charlie@uni.edu', 3, 3),
+(104, 'David', 'david@uni.edu', 4, 4),
+(105, 'Eva', 'eva@uni.edu', 2, 5),
+(106, 'Fay', 'fay@uni.edu', 3, 6),
+(107, 'George', 'george@uni.edu', 1, 7),
+(108, 'Helen', 'helen@uni.edu', 4, 8),
+(109, 'Ian', 'ian@uni.edu', 1, 9),
+(110, 'Jane', 'jane@uni.edu', 2, 10);
+
+-- REFEREE
+INSERT INTO Referee VALUES 
+(201, 'Mr. Smith', 'smith@uni.edu', 'Football'),
+(202, 'Ms. Rachel', 'rachel@uni.edu', 'Cricket'),
+(203, 'Mr. Ben', 'ben@uni.edu', 'Basketball'),
+(204, 'Ms. Laura', 'laura@uni.edu', 'Badminton'),
+(205, 'Mr. John', 'john@uni.edu', 'Volleyball'),
+(206, 'Ms. Amy', 'amy@uni.edu', 'Chess'),
+(207, 'Mr. Rob', 'rob@uni.edu', 'Kabaddi'),
+(208, 'Ms. Kate', 'kate@uni.edu', 'Throwball'),
+(209, 'Mr. Max', 'max@uni.edu', 'Table Tennis'),
+(210, 'Ms. Mia', 'mia@uni.edu', 'Hockey');
+
+-- EVENT
+INSERT INTO Event VALUES 
+(301, 'Interhouse Football', 'Team', '2025-01-10', 201),
+(302, 'Interhouse Cricket', 'Team', '2025-01-12', 202),
+(303, 'Basketball Match', 'Team', '2025-01-14', 203),
+(304, 'Badminton Singles', 'Solo', '2025-01-15', 204),
+(305, 'Volleyball Match', 'Team', '2025-01-17', 205),
+(306, 'Chess Tournament', 'Solo', '2025-01-18', 206),
+(307, 'Kabaddi Match', 'Team', '2025-01-20', 207),
+(308, 'Throwball Challenge', 'Team', '2025-01-22', 208),
+(309, 'Table Tennis Open', 'Solo', '2025-01-23', 209),
+(310, 'Hockey Finals', 'Team', '2025-01-25', 210);
+
+-- TEAM
+INSERT INTO Team VALUES 
+(401, 1, 301), (402, 2, 302), (403, 3, 303), (404, 4, 304), (405, 5, 305),
+(406, 6, 306), (407, 7, 307), (408, 8, 308), (409, 9, 309), (410, 10, 310);
+
+-- TEAMMEMBER
+INSERT INTO TeamMember VALUES 
+(401, 101, 'Captain'), (402, 102, 'Captain'), (403, 103, 'Captain'), 
+(404, 104, 'Captain'), (405, 105, 'Captain'), (406, 106, 'Captain'), 
+(407, 107, 'Captain'), (408, 108, 'Captain'), (409, 109, 'Captain'), (410, 110, 'Captain');
+
+-- MATCHRESULT
+INSERT INTO MatchResult VALUES 
+(501, 301, 1, '3 - 1'), (502, 302, 2, '245/7 - 230/10'), (503, 303, 3, '68 - 55'),
+(504, 304, 4, '21 - 15'), (505, 305, 5, '25 - 20'), (506, 306, 6, '2 - 1'),
+(507, 307, 7, '47 - 42'), (508, 308, 8, '18 - 15'), (509, 309, 9, '11 - 8'), (510, 310, 10, '3 - 0');
+
+-- ==========================================
+-- STEP 4: DESCRIBE & DISPLAY ALL TABLES
+-- ==========================================
+
+-- Describe and show House
+DESCRIBE House;
+SELECT * FROM House;
+
+-- Describe and show Student
+DESCRIBE Student;
+SELECT * FROM Student;
+
+-- Describe and show Referee
+DESCRIBE Referee;
+SELECT * FROM Referee;
+
+-- Describe and show Event
+DESCRIBE Event;
+SELECT * FROM Event;
+
+-- Describe and show Team
+DESCRIBE Team;
+SELECT * FROM Team;
+
+-- Describe and show TeamMember
+DESCRIBE TeamMember;
+SELECT * FROM TeamMember;
+
+-- Describe and show MatchResult
+DESCRIBE MatchResult;
+SELECT * FROM MatchResult;
+
+SELECT COUNT(DISTINCT StudentID) AS Total_Participants
+FROM TeamMember;
+
+SELECT EventID, COUNT(*) AS Team_Count
+FROM Team
+GROUP BY EventID;
+
+SELECT SportType, COUNT(*) AS Event_Count
+FROM Event
+GROUP BY SportType;
+
+SELECT WinningHouseID AS HouseID, COUNT(*) AS Wins
+FROM MatchResult
+GROUP BY WinningHouseID
+ORDER BY Wins DESC;
+
+SELECT RefereeID, COUNT(*) AS Events_Handled
+FROM Event
+GROUP BY RefereeID;
+
+SELECT AVG(Year) AS Avg_Student_Year
+FROM Student
+WHERE StudentID IN (SELECT DISTINCT StudentID FROM TeamMember);
+
+SELECT HouseID, COUNT(*) AS Total_Events
+FROM Team
+GROUP BY HouseID;
+
+SELECT * 
+FROM Event
+WHERE EventName LIKE 'Interhouse%';
+
+SELECT * 
+FROM Event
+WHERE EventDate BETWEEN '2025-01-15' AND '2025-01-22';
+
+SELECT * 
+FROM Student
+WHERE HouseID IN (1, 3, 5);
+
+SELECT * 
+FROM Student 
+WHERE HouseID = (
+  SELECT WinningHouseID 
+  FROM MatchResult 
+  GROUP BY WinningHouseID 
+  ORDER BY COUNT(*) DESC 
+  LIMIT 1
+);
+
+SELECT 
+  S.StudentID, S.Name, H.HouseName
+FROM 
+  Student S
+INNER JOIN House H ON S.HouseID = H.HouseID;
+
+SELECT 
+  E.EventID, E.EventName, T.TeamID
+FROM 
+  Team T
+RIGHT JOIN Event E ON T.EventID = E.EventID;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE get_events_by_house(IN input_house_id INT)
+BEGIN
+    SELECT DISTINCT E.EventID, E.EventName, E.EventDate
+    FROM Team T
+    JOIN Event E ON T.EventID = E.EventID
+    WHERE T.HouseID = input_house_id;
+END $$
+
+DELIMITER ;
+
+CALL get_events_by_house(3);
+
+DELIMITER $$
+CREATE FUNCTION total_wins(house_id INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE wins INT;
+
+    SELECT COUNT(*) INTO wins
+    FROM MatchResult
+    WHERE WinningHouseID = house_id;
+
+    RETURN wins;
+END $$
+
+DELIMITER ;
+SELECT total_wins(5) AS WinsByHouse5;
+
+
+DELIMITER $$
+
+CREATE TRIGGER prevent_duplicate_team
+BEFORE INSERT ON Team
+FOR EACH ROW
+BEGIN
+    DECLARE duplicate_count INT;
+
+    SELECT COUNT(*) INTO duplicate_count
+    FROM Team
+    WHERE HouseID = NEW.HouseID AND EventID = NEW.EventID;
+
+    IF duplicate_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'This house is already registered for this event!';
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+
+
